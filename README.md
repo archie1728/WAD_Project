@@ -7,5 +7,5 @@ Anurag Karki 6411318
 
 ## Web app development project: Carada - car shop web app for market owners.
 
-![Image of Homepage of Car Market Filtered](/assets/images/img_filter.png)
+![Image of Homepage of Car Market Filtered](/images/img_filter.png)
  
