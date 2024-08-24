@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link } from 'react-router-dom';
-import { Navbar, Nav, Container } from 'react-bootstrap';  // Import Bootstrap components
+import { Navbar, Nav, Container } from 'react-bootstrap';  
 
 function Root() {
     return (
