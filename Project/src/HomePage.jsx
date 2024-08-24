@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Table, Button, Navbar, Nav } from 'react-bootstrap';
+import { Container, Table, Row, Col,} from 'react-bootstrap';
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, Title, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ArcElement } from 'chart.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -172,41 +172,43 @@ const HomePage = () => {
                     </tbody>
                 </Table>
 
-                <div className="dashboard-section">
+                <div className="dashboard-section" style={{ width: '100%', height: '700px', marginBottom:'100px'}}>
                     <h2>Car Distribution by Brand</h2>
-                    <Pie data={pieChartData} />
+                    <Pie data={pieChartData} options={{ responsive: true, maintainAspectRatio: false }}/>
                 </div>
-
-                <div className="dashboard-section">
-                    <h2>Car Distribution by Model</h2>
-                    <div style={{ height: '600px', width: '100%' }}> {/* Increase the height */}
-                        <Bar
-                            data={barChartData}
-                            options={{
-                                plugins: {
-                                    title: {
-                                        display: true,
-                                        text: `Cars by Brand and Model`
+                
+                <Row className="my-4">
+                    <div className="dashboard-section">
+                        <h2>Car Distribution by Model</h2>
+                        <div style={{ height: '600px', width: '100%' }}> {/* Increase the height */}
+                            <Bar
+                                data={barChartData}
+                                options={{
+                                    plugins: {
+                                        title: {
+                                            display: true,
+                                            text: `Cars by Brand and Model`
+                                        },
+                                        legend: {
+                                            display: false, // Hide the legend
+                                        },
                                     },
-                                    legend: {
-                                        display: false, // Hide the legend
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: {
+                                            stacked: true,
+                                        },
+                                        y: {
+                                            stacked: true,
+                                            beginAtZero: true,
+                                        },
                                     },
-                                },
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    x: {
-                                        stacked: true,
-                                    },
-                                    y: {
-                                        stacked: true,
-                                        beginAtZero: true,
-                                    },
-                                },
-                            }}
-                        />
+                                }}
+                            />
+                        </div>
                     </div>
-                </div>
+                </Row>
             </Container>
         </>
     );
