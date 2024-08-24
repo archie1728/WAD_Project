@@ -21,7 +21,7 @@ const HomePage = () => {
     const secondHalfBrands = brandKeys.slice(halfIndex);
 
     useEffect(() => {
-        fetch('/cars.json')
+        fetch('./cars.json')
             .then(response => response.json())
             .then(data => {
                 const carsData = data.Cars;

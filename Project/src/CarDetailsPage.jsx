@@ -25,7 +25,7 @@ const CarDetailsPage = () => {
 
     useEffect(() => {
 
-        fetch('/cars.json')
+        fetch('./cars.json')
             .then(response => response.json())
             .then(data => {
                 // Extract and map brands
@@ -109,7 +109,6 @@ const CarDetailsPage = () => {
             }else{
                 return [...prevHighlight, car];
             }
-           
         }); 
     }
 

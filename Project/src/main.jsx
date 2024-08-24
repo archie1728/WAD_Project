@@ -13,23 +13,24 @@ import CarDetailsPage from './CarDetailsPage';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/WAD_Project/",
     element: <Root />,  
     errorElement: <ErrorPage />,
     children: [
       {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: "car-details",
-        element: <CarDetailsPage />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: "Car-Details",
+            element: <CarDetailsPage />,
+          },
+        ],
       },
     ],
-  },
-  {
-    path: "*",
-    element: <ErrorPage />,
   },
 ]);
 
