@@ -14,7 +14,7 @@ Anurag Karki 6411318
 ![](/images/img_pie.png)
 
 ### Dashboard Stacked Bar Chart
-![](/images/img_bar.png)
+![](/images/img-bar.png)
 
 ## Car Details Page
 ![](/images/img_cars1.png)
