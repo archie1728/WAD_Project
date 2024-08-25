@@ -25,7 +25,7 @@ const router = createBrowserRouter([
             element: <HomePage />,
           },
           {
-            path: "/WAD_Project/Car-Details/",
+            path: "Car-Details",
             element: <CarDetailsPage />,
           },
         ],
