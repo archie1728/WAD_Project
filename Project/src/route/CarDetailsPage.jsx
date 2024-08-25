@@ -196,9 +196,10 @@ const CarDetailsPage = () => {
                     </Form.Group>
                 </div>
 
-                <div className="sort-options mb-4">
-                    <Button variant="primary" onClick={() => handleSort('price')}>Sort by Most Recent</Button>
-                    <Button variant="primary" onClick={() => handleSort('recent')}>Sort by Price</Button>
+                <div className="sort-options mb-4 d-flex justify-content-left">
+                    <Button variant="primary" onClick={() => handleSort('price')} >Sort by Most Recent</Button>
+                
+                    <Button variant="primary" onClick={() => handleSort('recent')} className="mx-2">Sort by Price</Button>
                 </div>
 
                 <Row>
