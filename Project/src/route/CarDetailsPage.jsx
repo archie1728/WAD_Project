@@ -1,7 +1,8 @@
 // src/pages/CarDetailsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Card,} from 'react-bootstrap';
+import debounce from 'lodash.debounce';
 
 const CarDetailsPage = () => {
     const { mkID } = useParams();
@@ -47,7 +48,7 @@ const CarDetailsPage = () => {
     }, [highlight]);
 
 
-    useEffect(() => {
+    const debouncedFilterAndSort = useCallback(debounce((cars, filters, sortOrder) => {
         let result = cars;
 
         if (filters.brand) {
@@ -74,7 +75,11 @@ const CarDetailsPage = () => {
         }
 
         setFilteredCars(result);
-    }, [cars, filters, sortOrder]);
+    }, 300), []);
+
+    useEffect(() => {
+        debouncedFilterAndSort(cars, filters, sortOrder);
+    }, [cars, filters, sortOrder, debouncedFilterAndSort]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -104,7 +109,6 @@ const CarDetailsPage = () => {
             }else{
                 return [...prevHighlight, car];
             }
-           
         }); 
     };
 
