@@ -12,6 +12,7 @@ const CarDetailsPage = () => {
         const saved = localStorage.getItem('highlight');
         return saved ? JSON.parse(saved) : [];
     });
+    const [highlightedCars, setHighlightedCars] = useState([]);
     const [filteredCars, setFilteredCars] = useState([]);
     const [show, setShow] = useState([...highlight]);
     const [filters, setFilters] = useState({
@@ -20,8 +21,8 @@ const CarDetailsPage = () => {
         province: '',
         status: ''
     });
-    const [sortOrder, setSortOrder] = useState('price');
-
+    const [sortOrder, setSortOrder] = useState('recent');
+    
     useEffect(() => {
         fetch('./cars.json')
             .then(response => response.json())
@@ -35,22 +36,21 @@ const CarDetailsPage = () => {
                     ...car,
                     Brand: brandMap[car.MkID] || 'Unknown'
                 }));
-
+    
                 setCars(carsWithBrands);
                 setFilteredCars(carsWithBrands);
                 
                 setBrand([...new Set(carsWithBrands.map(car => car.Brand))]);
             });
     }, []);
-
+    
     useEffect(() => {
         localStorage.setItem('highlight', JSON.stringify(highlight));
     }, [highlight]);
-
-
+    
     const debouncedFilterAndSort = useCallback(debounce((cars, filters, sortOrder) => {
         let result = cars;
-
+    
         if (filters.brand) {
             result = result.filter(car => car.Brand === filters.brand);
         }
@@ -63,7 +63,7 @@ const CarDetailsPage = () => {
         if (filters.status) {
             result = result.filter(car => car.Status === filters.status);
         }
-
+    
         if (sortOrder === 'recent') {
             result.sort((a, b) => b.Yr - a.Yr);
         } else if (sortOrder === 'price') {
@@ -73,14 +73,14 @@ const CarDetailsPage = () => {
                 return priceA - priceB;
             });
         }
-
+    
         setFilteredCars(result);
     }, 300), []);
-
+    
     useEffect(() => {
         debouncedFilterAndSort(cars, filters, sortOrder);
     }, [cars, filters, sortOrder, debouncedFilterAndSort]);
-
+    
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prevFilters => ({
@@ -88,30 +88,30 @@ const CarDetailsPage = () => {
             [name]: value
         }));
     };
-
+    
     const handleSort = (order) => {
         setSortOrder(order);
     };
-
+    
     const clear = () => {
         setHighlight([]);
     };
-
+    
     const removeHighlight = (car) => {
         setHighlight(prevHighlight => prevHighlight.filter(item => item.Cid !== car.Cid));
     };
-
+    
     const highlightCar = (car) => {
         setHighlight(prevHighlight => {
-            if (prevHighlight.some(c => c.Cid == car.Cid)){
-                const high = prevHighlight.filter(c => c.Cid != car.Cid);
+            if (prevHighlight.some(c => c.Cid === car.Cid)){
+                const high = prevHighlight.filter(c => c.Cid !== car.Cid);
                 return [...high, car];
-            }else{
+            } else {
                 return [...prevHighlight, car];
             }
-        }); 
+        });
     };
-
+    
     const noResultsMessage = () => {
         const { year, province, status } = filters;
         const filterDescriptions = [
@@ -119,15 +119,15 @@ const CarDetailsPage = () => {
             province && `province ${province}`,
             status && `status ${status}`
         ].filter(Boolean).join(', ');
-
+    
         return `No cars found with ${filterDescriptions}`;
     };
-
+    
     return (
         <div>
             <Container className="my-4">
                 <h2 className="my-4">All Cars</h2>
-
+    
                 {highlight.length > 0 && (
                     <div className="highlighted-cars mb-4">
                         <h3>Highlighted Cars</h3>
@@ -157,7 +157,7 @@ const CarDetailsPage = () => {
                         </Row>
                     </div>
                 )}
-
+    
                 <div className="filters mb-4">
                     <Form.Group controlId="formBrand">
                         <Form.Label>Brand:</Form.Label>
@@ -168,7 +168,7 @@ const CarDetailsPage = () => {
                             ))}
                         </Form.Select>
                     </Form.Group>
-
+    
                     <Form.Group controlId="formYear">
                         <Form.Label>Year:</Form.Label>
                         <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
@@ -178,7 +178,7 @@ const CarDetailsPage = () => {
                             ))}
                         </Form.Select>
                     </Form.Group>
-
+    
                     <Form.Group controlId="formProvince">
                         <Form.Label>Province:</Form.Label>
                         <Form.Select name="province" value={filters.province} onChange={handleFilterChange}>
@@ -188,7 +188,7 @@ const CarDetailsPage = () => {
                             ))}
                         </Form.Select>
                     </Form.Group>
-
+    
                     <Form.Group controlId="formStatus">
                         <Form.Label>Status:</Form.Label>
                         <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
@@ -199,21 +199,23 @@ const CarDetailsPage = () => {
                         </Form.Select>
                     </Form.Group>
                 </div>
-
+    
                 <div className="sort-options mb-4 d-flex justify-content-left">
                     <Button 
                         variant={sortOrder === 'recent' ? 'secondary' : 'primary'} 
                         onClick={() => handleSort('price')}
-                    >Sort by Most Recent
+                    >
+                        Sort by Most Recent
                     </Button>
                     <Button 
-                            variant={sortOrder === 'price' ? 'secondary' : 'primary'} 
-                            onClick={() => handleSort('recent')} 
-                            className="mx-2"
-                    >Sort by Price
+                        variant={sortOrder === 'price' ? 'secondary' : 'primary'} 
+                        onClick={() => handleSort('recent')} 
+                        className="mx-2"
+                    >
+                        Sort by Price
                     </Button>
                 </div>
-
+    
                 <Row>
                     {filteredCars.length > 0 ? (
                         filteredCars.map(car => (
@@ -230,7 +232,8 @@ const CarDetailsPage = () => {
                                         <Button 
                                             variant={highlight.find(c => c.Cid === car.Cid) ? 'danger' : 'primary'} 
                                             onClick={() => highlight.find(c => c.Cid === car.Cid) ? removeHighlight(car) : highlightCar(car)}
-                                        >{highlight.find(c => c.Cid === car.Cid) ? 'Remove Highlight' : 'Highlight'}
+                                        >
+                                            {highlight.find(c => c.Cid === car.Cid) ? 'Remove Highlight' : 'Highlight'}
                                         </Button>
                                     </Card.Body>
                                 </Card>
