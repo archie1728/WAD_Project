@@ -1,40 +1,33 @@
 // src/pages/CarDetailsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Form, Button, Container, Row, Col, Card,} from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { useLocalStorage } from 'react-use';
 
 const CarDetailsPage = () => {
     const { mkID } = useParams();
     const [cars, setCars] = useState([]);
     const [brand, setBrand] = useState([]);
-    const [highlight, setHighlight] = useState(() => {
-        const saved = localStorage.getItem('highlight');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [highlight, setHighlight] = useLocalStorage('highlight', []);
     const [filteredCars, setFilteredCars] = useState([]);
-    const [show, setShow] = useState([...highlight])
+    const [show, setShow] = useState([...highlight]);
     const [filters, setFilters] = useState({
         brand: '',
         year: '',
         province: '',
         status: ''
     });
-    const [sortOrder, setSortOrder] = useState('recent'); 
+    const [sortOrder, setSortOrder] = useState('recent');
 
     useEffect(() => {
-
         fetch('./cars.json')
             .then(response => response.json())
             .then(data => {
-                // Extract and map brands
                 const brandMap = data.MMList.reduce((map, brand) => {
                     map[brand.mkID] = brand.Name;
                     return map;
                 }, {});
                 
-                // Map cars to include brand names
                 const carsWithBrands = data.Cars.map(car => ({
                     ...car,
                     Brand: brandMap[car.MkID] || 'Unknown'
@@ -42,40 +35,34 @@ const CarDetailsPage = () => {
 
                 setCars(carsWithBrands);
                 setFilteredCars(carsWithBrands);
-
                 
                 setBrand([...new Set(carsWithBrands.map(car => car.Brand))]);
             });
     }, []);
 
     useEffect(() => {
-        localStorage.setItem('highlight', JSON.stringify(highlight));
-    }, [highlight]);
-
-    useEffect(() => {
         let result = cars;
 
         if (filters.brand) {
-            result = result.filter(car => car.Brand == filters.brand);
+            result = result.filter(car => car.Brand === filters.brand);
         }
         if (filters.year) {
-            result = result.filter(car => car.Yr == parseInt(filters.year));
+            result = result.filter(car => car.Yr === parseInt(filters.year));
         }
         if (filters.province) {
-            result = result.filter(car => car.Province == filters.province);
+            result = result.filter(car => car.Province === filters.province);
         }
         if (filters.status) {
-            result = result.filter(car => car.Status == filters.status);
+            result = result.filter(car => car.Status === filters.status);
         }
 
-        // Apply sorting
         if (sortOrder === 'recent') {
-            result.sort((a, b) => b.Yr - a.Yr); // Most recent first
+            result.sort((a, b) => b.Yr - a.Yr);
         } else if (sortOrder === 'price') {
             result.sort((a, b) => {
                 const priceA = parseInt(a.Prc.replace(/[^0-9]/g, ''));
                 const priceB = parseInt(b.Prc.replace(/[^0-9]/g, ''));
-                return priceA - priceB; // Lowest price first
+                return priceA - priceB;
             });
         }
 
@@ -95,22 +82,22 @@ const CarDetailsPage = () => {
     };
 
     const clear = () => {
-        setHighlight([])
-    }
+        setHighlight([]);
+    };
 
-    const removeHighlight = (car) =>{
-        setHighlight(prevHighlight => prevHighlight.filter(item => item.Cid !== car.Cid))
-    }
+    const removeHighlight = (car) => {
+        setHighlight(prevHighlight => prevHighlight.filter(item => item.Cid !== car.Cid));
+    };
+
     const highlightCar = (car) => {
         setHighlight(prevHighlight => {
-            if (prevHighlight.some(c => c.Cid == car.Cid)){
-                const high = prevHighlight.filter(c => c.Cid != car.Cid);
-                return [...high, car];
-            }else{
+            if (prevHighlight.some(c => c.Cid === car.Cid)) {
+                return prevHighlight.filter(c => c.Cid !== car.Cid);
+            } else {
                 return [...prevHighlight, car];
             }
-        }); 
-    }
+        });
+    };
 
     const noResultsMessage = () => {
         const { year, province, status } = filters;
@@ -159,7 +146,6 @@ const CarDetailsPage = () => {
                 )}
 
                 <div className="filters mb-4">
-
                     <Form.Group controlId="formBrand">
                         <Form.Label>Brand:</Form.Label>
                         <Form.Select name="brand" value={filters.brand} onChange={handleFilterChange}>
@@ -169,6 +155,7 @@ const CarDetailsPage = () => {
                             ))}
                         </Form.Select>
                     </Form.Group>
+
                     <Form.Group controlId="formYear">
                         <Form.Label>Year:</Form.Label>
                         <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
