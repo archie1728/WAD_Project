@@ -21,7 +21,7 @@ const CarDetailsPage = () => {
         province: '',
         status: ''
     });
-    const [sortOrder, setSortOrder] = useState('recent');
+    const [sortOrder, setSortOrder] = useState('price');
     
     useEffect(() => {
         fetch('./cars.json')
@@ -159,46 +159,57 @@ const CarDetailsPage = () => {
                 )}
     
                 <div className="filters mb-4">
-                    <Form.Group controlId="formBrand">
-                        <Form.Label>Brand:</Form.Label>
-                        <Form.Select name="brand" value={filters.brand} onChange={handleFilterChange}>
-                            <option value="">Any Brand</option>
-                            {[...new Set(cars.map(car => car.Brand))].map(brand => (
-                                <option key={brand} value={brand}>{brand}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
-    
-                    <Form.Group controlId="formYear">
-                        <Form.Label>Year:</Form.Label>
-                        <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
-                            <option value="">Any Year</option>
-                            {[...new Set(cars.map(car => car.Yr))].map(year => (
-                                <option key={year} value={year}>{year}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
-    
-                    <Form.Group controlId="formProvince">
-                        <Form.Label>Province:</Form.Label>
-                        <Form.Select name="province" value={filters.province} onChange={handleFilterChange}>
-                            <option value="">All Province</option>
-                            {[...new Set(cars.map(car => car.Province))].map(province => (
-                                <option key={province} value={province}>{province}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
-    
-                    <Form.Group controlId="formStatus">
-                        <Form.Label>Status:</Form.Label>
-                        <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
-                            <option value="">Any Status</option>
-                            {[...new Set(cars.map(car => car.Status))].map(status => (
-                                <option key={status} value={status}>{status}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                    <Row className="align-items-center">
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formBrand">
+                                <Form.Label>Brand:</Form.Label>
+                                <Form.Select name="brand" value={filters.brand} onChange={handleFilterChange}>
+                                    <option value="">Any Brand</option>
+                                    {[...new Set(cars.map(car => car.Brand))].map(brand => (
+                                        <option key={brand} value={brand}>{brand}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formYear">
+                                <Form.Label>Year:</Form.Label>
+                                <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
+                                    <option value="">Any Year</option>
+                                    {[...new Set(cars.map(car => car.Yr))].map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formProvince">
+                                <Form.Label>Province:</Form.Label>
+                                <Form.Select name="province" value={filters.province} onChange={handleFilterChange}>
+                                    <option value="">All Province</option>
+                                    {[...new Set(cars.map(car => car.Province))].map(province => (
+                                        <option key={province} value={province}>{province}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formStatus">
+                                <Form.Label>Status:</Form.Label>
+                                <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
+                                    <option value="">Any Status</option>
+                                    {[...new Set(cars.map(car => car.Status))].map(status => (
+                                        <option key={status} value={status}>{status}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
                 </div>
+
     
                 <div className="sort-options mb-4 d-flex justify-content-left">
                     <Button 
