@@ -20,7 +20,7 @@ const CarDetailsPage = () => {
         province: '',
         status: ''
     });
-    const [sortOrder, setSortOrder] = useState('recent');
+    const [sortOrder, setSortOrder] = useState('price');
 
     useEffect(() => {
         fetch('./cars.json')
@@ -201,9 +201,17 @@ const CarDetailsPage = () => {
                 </div>
 
                 <div className="sort-options mb-4 d-flex justify-content-left">
-                    <Button variant="primary" onClick={() => handleSort('price')} >Sort by Most Recent</Button>
-                
-                    <Button variant="primary" onClick={() => handleSort('recent')} className="mx-2">Sort by Price</Button>
+                    <Button 
+                        variant={sortOrder === 'recent' ? 'secondary' : 'primary'} 
+                        onClick={() => handleSort('price')}
+                    >Sort by Most Recent
+                    </Button>
+                    <Button 
+                            variant={sortOrder === 'price' ? 'secondary' : 'primary'} 
+                            onClick={() => handleSort('recent')} 
+                            className="mx-2"
+                    >Sort by Price
+                    </Button>
                 </div>
 
                 <Row>
