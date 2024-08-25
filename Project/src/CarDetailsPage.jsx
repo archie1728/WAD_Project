@@ -7,7 +7,10 @@ const CarDetailsPage = () => {
     const { mkID } = useParams();
     const [cars, setCars] = useState([]);
     const [brand, setBrand] = useState([]);
-    const [highlight, setHighlight] = useLocalStorage('highlight', []);
+    const [highlight, setHighlight] = useState(() => {
+        const saved = localStorage.getItem('highlight');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [filteredCars, setFilteredCars] = useState([]);
     const [show, setShow] = useState([...highlight]);
     const [filters, setFilters] = useState({
@@ -38,6 +41,11 @@ const CarDetailsPage = () => {
                 setBrand([...new Set(carsWithBrands.map(car => car.Brand))]);
             });
     }, []);
+
+    useEffect(() => {
+        localStorage.setItem('highlight', JSON.stringify(highlight));
+    }, [highlight]);
+
 
     useEffect(() => {
         let result = cars;
@@ -90,12 +98,14 @@ const CarDetailsPage = () => {
 
     const highlightCar = (car) => {
         setHighlight(prevHighlight => {
-            if (prevHighlight.some(c => c.Cid === car.Cid)) {
-                return prevHighlight.filter(c => c.Cid !== car.Cid);
-            } else {
+            if (prevHighlight.some(c => c.Cid == car.Cid)){
+                const high = prevHighlight.filter(c => c.Cid != car.Cid);
+                return [...high, car];
+            }else{
                 return [...prevHighlight, car];
             }
-        });
+           
+        }); 
     };
 
     const noResultsMessage = () => {
