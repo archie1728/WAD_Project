@@ -1,7 +1,8 @@
 // src/pages/CarDetailsPage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Card,} from 'react-bootstrap';
+import debounce from 'lodash.debounce';
 
 const CarDetailsPage = () => {
     const { mkID } = useParams();
@@ -11,6 +12,7 @@ const CarDetailsPage = () => {
         const saved = localStorage.getItem('highlight');
         return saved ? JSON.parse(saved) : [];
     });
+    const [highlightedCars, setHighlightedCars] = useState([]);
     const [filteredCars, setFilteredCars] = useState([]);
     const [show, setShow] = useState([...highlight]);
     const [filters, setFilters] = useState({
@@ -19,8 +21,8 @@ const CarDetailsPage = () => {
         province: '',
         status: ''
     });
-    const [sortOrder, setSortOrder] = useState('recent');
-
+    const [sortOrder, setSortOrder] = useState('price');
+    
     useEffect(() => {
         fetch('./cars.json')
             .then(response => response.json())
@@ -34,22 +36,21 @@ const CarDetailsPage = () => {
                     ...car,
                     Brand: brandMap[car.MkID] || 'Unknown'
                 }));
-
+    
                 setCars(carsWithBrands);
                 setFilteredCars(carsWithBrands);
                 
                 setBrand([...new Set(carsWithBrands.map(car => car.Brand))]);
             });
     }, []);
-
+    
     useEffect(() => {
         localStorage.setItem('highlight', JSON.stringify(highlight));
     }, [highlight]);
-
-
-    useEffect(() => {
+    
+    const debouncedFilterAndSort = useCallback(debounce((cars, filters, sortOrder) => {
         let result = cars;
-
+    
         if (filters.brand) {
             result = result.filter(car => car.Brand === filters.brand);
         }
@@ -62,7 +63,7 @@ const CarDetailsPage = () => {
         if (filters.status) {
             result = result.filter(car => car.Status === filters.status);
         }
-
+    
         if (sortOrder === 'recent') {
             result.sort((a, b) => b.Yr - a.Yr);
         } else if (sortOrder === 'price') {
@@ -72,10 +73,14 @@ const CarDetailsPage = () => {
                 return priceA - priceB;
             });
         }
-
+    
         setFilteredCars(result);
-    }, [cars, filters, sortOrder]);
-
+    }, 300), []);
+    
+    useEffect(() => {
+        debouncedFilterAndSort(cars, filters, sortOrder);
+    }, [cars, filters, sortOrder, debouncedFilterAndSort]);
+    
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prevFilters => ({
@@ -83,31 +88,30 @@ const CarDetailsPage = () => {
             [name]: value
         }));
     };
-
+    
     const handleSort = (order) => {
         setSortOrder(order);
     };
-
+    
     const clear = () => {
         setHighlight([]);
     };
-
+    
     const removeHighlight = (car) => {
         setHighlight(prevHighlight => prevHighlight.filter(item => item.Cid !== car.Cid));
     };
-
+    
     const highlightCar = (car) => {
         setHighlight(prevHighlight => {
-            if (prevHighlight.some(c => c.Cid == car.Cid)){
-                const high = prevHighlight.filter(c => c.Cid != car.Cid);
+            if (prevHighlight.some(c => c.Cid === car.Cid)){
+                const high = prevHighlight.filter(c => c.Cid !== car.Cid);
                 return [...high, car];
-            }else{
+            } else {
                 return [...prevHighlight, car];
             }
-           
-        }); 
+        });
     };
-
+    
     const noResultsMessage = () => {
         const { year, province, status } = filters;
         const filterDescriptions = [
@@ -115,15 +119,15 @@ const CarDetailsPage = () => {
             province && `province ${province}`,
             status && `status ${status}`
         ].filter(Boolean).join(', ');
-
+    
         return `No cars found with ${filterDescriptions}`;
     };
-
+    
     return (
         <div>
             <Container className="my-4">
                 <h2 className="my-4">All Cars</h2>
-
+    
                 {highlight.length > 0 && (
                     <div className="highlighted-cars mb-4">
                         <h3>Highlighted Cars</h3>
@@ -153,54 +157,76 @@ const CarDetailsPage = () => {
                         </Row>
                     </div>
                 )}
-
+    
                 <div className="filters mb-4">
-                    <Form.Group controlId="formBrand">
-                        <Form.Label>Brand:</Form.Label>
-                        <Form.Select name="brand" value={filters.brand} onChange={handleFilterChange}>
-                            <option value="">Any Brand</option>
-                            {[...new Set(cars.map(car => car.Brand))].map(brand => (
-                                <option key={brand} value={brand}>{brand}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                    <Row className="align-items-center">
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formBrand">
+                                <Form.Label>Brand:</Form.Label>
+                                <Form.Select name="brand" value={filters.brand} onChange={handleFilterChange}>
+                                    <option value="">Any Brand</option>
+                                    {[...new Set(cars.map(car => car.Brand))].map(brand => (
+                                        <option key={brand} value={brand}>{brand}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
 
-                    <Form.Group controlId="formYear">
-                        <Form.Label>Year:</Form.Label>
-                        <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
-                            <option value="">Any Year</option>
-                            {[...new Set(cars.map(car => car.Yr))].map(year => (
-                                <option key={year} value={year}>{year}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formYear">
+                                <Form.Label>Year:</Form.Label>
+                                <Form.Select name="year" value={filters.year} onChange={handleFilterChange}>
+                                    <option value="">Any Year</option>
+                                    {[...new Set(cars.map(car => car.Yr))].map(year => (
+                                        <option key={year} value={year}>{year}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
 
-                    <Form.Group controlId="formProvince">
-                        <Form.Label>Province:</Form.Label>
-                        <Form.Select name="province" value={filters.province} onChange={handleFilterChange}>
-                            <option value="">All Province</option>
-                            {[...new Set(cars.map(car => car.Province))].map(province => (
-                                <option key={province} value={province}>{province}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formProvince">
+                                <Form.Label>Province:</Form.Label>
+                                <Form.Select name="province" value={filters.province} onChange={handleFilterChange}>
+                                    <option value="">All Province</option>
+                                    {[...new Set(cars.map(car => car.Province))].map(province => (
+                                        <option key={province} value={province}>{province}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
 
-                    <Form.Group controlId="formStatus">
-                        <Form.Label>Status:</Form.Label>
-                        <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
-                            <option value="">Any Status</option>
-                            {[...new Set(cars.map(car => car.Status))].map(status => (
-                                <option key={status} value={status}>{status}</option>
-                            ))}
-                        </Form.Select>
-                    </Form.Group>
+                        <Col xs={12} sm={6} md={3}>
+                            <Form.Group controlId="formStatus">
+                                <Form.Label>Status:</Form.Label>
+                                <Form.Select name="status" value={filters.status} onChange={handleFilterChange}>
+                                    <option value="">Any Status</option>
+                                    {[...new Set(cars.map(car => car.Status))].map(status => (
+                                        <option key={status} value={status}>{status}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                        </Col>
+                    </Row>
                 </div>
 
-                <div className="sort-options mb-4">
-                    <Button variant="primary" onClick={() => handleSort('price')}>Sort by Most Recent</Button>
-                    <Button variant="primary" onClick={() => handleSort('recent')}>Sort by Price</Button>
+    
+                <div className="sort-options mb-4 d-flex justify-content-left">
+                    <Button 
+                        variant={sortOrder === 'recent' ? 'secondary' : 'primary'} 
+                        onClick={() => handleSort('price')}
+                    >
+                        Sort by Most Recent
+                    </Button>
+                    <Button 
+                        variant={sortOrder === 'price' ? 'secondary' : 'primary'} 
+                        onClick={() => handleSort('recent')} 
+                        className="mx-2"
+                    >
+                        Sort by Price
+                    </Button>
                 </div>
-
+    
                 <Row>
                     {filteredCars.length > 0 ? (
                         filteredCars.map(car => (
@@ -216,8 +242,9 @@ const CarDetailsPage = () => {
                                         </Card.Text>
                                         <Button 
                                             variant={highlight.find(c => c.Cid === car.Cid) ? 'danger' : 'primary'} 
-                                            onClick={() => highlightCar(car)}
-                                        >{highlight.find(c => c.Cid === car.Cid) ? 'Remove Highlight' : 'Highlight'}
+                                            onClick={() => highlight.find(c => c.Cid === car.Cid) ? removeHighlight(car) : highlightCar(car)}
+                                        >
+                                            {highlight.find(c => c.Cid === car.Cid) ? 'Remove Highlight' : 'Highlight'}
                                         </Button>
                                     </Card.Body>
                                 </Card>
