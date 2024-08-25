@@ -217,7 +217,7 @@ const CarDetailsPage = () => {
                                         </Card.Text>
                                         <Button 
                                             variant={highlight.find(c => c.Cid === car.Cid) ? 'danger' : 'primary'} 
-                                            onClick={() => highlight.some(c => c.Cid === car.Cid) ? removeHighlight(car) : highlightCar(car)}
+                                            onClick={() => highlight.find(c => c.Cid === car.Cid) ? removeHighlight(car) : highlightCar(car)}
                                         >{highlight.find(c => c.Cid === car.Cid) ? 'Remove Highlight' : 'Highlight'}
                                         </Button>
                                     </Card.Body>
