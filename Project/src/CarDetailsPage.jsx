@@ -1,8 +1,7 @@
 // src/pages/CarDetailsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
-import { useLocalStorage } from 'react-use';
+import { Form, Button, Container, Row, Col, Card,} from 'react-bootstrap';
 
 const CarDetailsPage = () => {
     const { mkID } = useParams();
