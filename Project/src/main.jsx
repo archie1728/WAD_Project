@@ -7,9 +7,9 @@ import {
 
 
 import ErrorPage from "./error-page";
-import Root from './root';
-import HomePage from './HomePage';
-import CarDetailsPage from './CarDetailsPage';
+import Root from './route/root';
+import HomePage from './route/HomePage';
+import CarDetailsPage from './route/CarDetailsPage';
 
 const router = createBrowserRouter([
   {
